@@ -6,7 +6,7 @@ import { Attachment } from './Attachment.js'
 export class Message {
   @PrimaryGeneratedColumn('uuid') id!: string
   @Index()
-  @Column() ticketId!: string
+  @Column({ type: 'uuid' }) ticketId!: string
   @ManyToOne('Ticket', (t: Ticket) => t.messages, { eager: true })
   ticket!: Ticket
   @Column({ length: 20 }) direction!: 'in' | 'out'
