@@ -7,7 +7,7 @@ export type TicketStatus = 'open' | 'pending' | 'resolved' | 'closed'
 export class Ticket {
   @PrimaryGeneratedColumn('uuid') id!: string
   @Index()
-  @Column() customerWaId!: string // 628xxx@whatsapp.net
+  @Column({ type: 'varchar' }) customerWaId!: string // 628xxx@whatsapp.net
   @Column() subject!: string
   @Column({ default: 'open' }) status!: TicketStatus
   @Column({ nullable: true }) assignedToUserId?: string

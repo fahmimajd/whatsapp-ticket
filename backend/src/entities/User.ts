@@ -5,7 +5,7 @@ import { Role } from './Role.js'
 export class User {
   @PrimaryGeneratedColumn('uuid') id!: string
   @Index({ unique: true })
-  @Column() username!: string
+  @Column({ type: 'varchar' }) username!: string
   @Column() passwordHash!: string
   @ManyToOne(() => Role, role => role.users, { eager: true })
   role!: Role
