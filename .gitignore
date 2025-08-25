@@ -19,7 +19,8 @@ pnpm-debug.log*
 # --- Env & secrets (jangan commit rahasia)
 .env
 .env.*
-!.env.example         # tetap commit contoh env
+!**/.env.example
+!*/.env.example
 *.pem
 *.key
 *.crt
