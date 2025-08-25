@@ -11,7 +11,16 @@ r.use(requireAuth)
 r.post('/start', requireRole('admin'), async (req, res) => {
   try {
     await WhatsAppService.start()
-    res.json({ ok: true })
+
+    // wait for QR to be generated
+    let qr: string | null = null
+    for (let i = 0; i < 20; i++) {
+      qr = WhatsAppService.getQR()
+      if (qr) break
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+
+    res.json({ ok: true, qr })
   } catch (error) {
     console.error('[api] Error starting WhatsApp:', error)
     res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to start WhatsApp service' })
@@ -29,19 +38,15 @@ r.get('/qr-image', requireRole('admin'), async (_req, res) => {
     if (!qr) {
       return res.status(404).json({ error: 'QR code not available' })
     }
-    
-    // Generate base64 QR code image
+
     const QRCode = await import('qrcode')
-    const qrDataUrl = await QRCode.toDataURL(qr, { 
+    const png = await QRCode.toBuffer(qr, {
       width: 256,
       margin: 2,
       color: { dark: '#000000ff', light: '#ffffffff' }
     })
-    
-    res.json({ 
-      qr: qr,
-      qrDataUrl: qrDataUrl 
-    })
+
+    res.type('png').send(png)
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate QR image' })
   }

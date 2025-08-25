@@ -33,9 +33,17 @@ registerRoutes(app)
 const PORT = Number(process.env.PORT || 8080)
 
 async function start () {
-  await ensureDirs([process.env.UPLOAD_DIR || './uploads', process.env.WA_SESSION_DIR || './wa-sessions'])
-  await AppDataSource.initialize()
-  server.listen(PORT, () => console.log(`[server] listening on :${PORT}`))
+  try {
+    await ensureDirs([process.env.UPLOAD_DIR || './uploads', process.env.WA_SESSION_DIR || './wa-sessions'])
+    await AppDataSource.initialize()
+    server.listen(PORT, () => console.log(`[server] listening on :${PORT}`))
+  } catch (err) {
+    console.error('[server] failed to start:', err)
+    process.exit(1)
+  }
 }
 
-void start()
+start().catch(err => {
+  console.error('[server] unexpected error:', err)
+  process.exit(1)
+})

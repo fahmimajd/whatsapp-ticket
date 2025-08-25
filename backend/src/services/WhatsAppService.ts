@@ -16,8 +16,7 @@ export class WhatsAppService {
   private static lastQR: string | null = null
 
   static async start () {
-    try {
-      const sessionDir = process.env.WA_SESSION_DIR || './wa-sessions'
+    const sessionDir = process.env.WA_SESSION_DIR || './wa-sessions'
       
       // Ensure directory exists
       await fs.mkdir(sessionDir, { recursive: true })
