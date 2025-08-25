@@ -1,0 +1,49 @@
+# --- Node / build artifacts
+node_modules/
+dist/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+.eslintcache
+.cache/
+.parcel-cache/
+.turbo/
+
+# --- Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# --- Env & secrets (jangan commit rahasia)
+.env
+.env.*
+!.env.example         # tetap commit contoh env
+*.pem
+*.key
+*.crt
+
+# --- Runtime data (jangan masuk repo)
+uploads/**
+!uploads/.gitkeep     # biar folder tetap ada di repo
+wa-sessions/**
+!wa-sessions/.gitkeep # menyimpan sesi Baileys di luar repo
+tmp/
+temp/
+
+# --- DB dumps / sementara
+*.sql
+*.dump
+*.bak
+
+# --- OS/editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*             # opsional; kalau mau commit setting, hapus baris ini
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# --- Docker (opsional kalau kamu pakai bind volume di repo)
+docker-data/
