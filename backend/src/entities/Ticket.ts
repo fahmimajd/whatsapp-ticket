@@ -7,11 +7,11 @@ export type TicketStatus = 'open' | 'pending' | 'resolved' | 'closed'
 export class Ticket {
   @PrimaryGeneratedColumn('uuid') id!: string
   @Index()
-  @Column({ type: 'varchar' }) customerWaId!: string // 628xxx@whatsapp.net
-  @Column() subject!: string
-  @Column({ default: 'open' }) status!: TicketStatus
-  @Column({ nullable: true }) assignedToUserId?: string
-  @OneToMany('Message', (message: Message) => message.ticket)
+  @Column({ type: 'varchar', length: 255 }) customerWaId!: string // 628xxx@whatsapp.net
+  @Column({ type: 'varchar', length: 255 }) subject!: string
+  @Column({ type: 'varchar', length: 20, default: 'open' }) status!: TicketStatus
+  @Column({ type: 'varchar', length: 36, nullable: true }) assignedToUserId?: string
+  @OneToMany(() => Message, (message) => message.ticket)
   messages!: Message[]
   @CreateDateColumn() createdAt!: Date
   @UpdateDateColumn() updatedAt!: Date

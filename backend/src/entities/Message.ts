@@ -1,18 +1,27 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Index, OneToMany } from 'typeorm'
+// src/entities/Message.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Index, OneToMany, JoinColumn } from 'typeorm'
 import { Ticket } from './Ticket.js'
 import { Attachment } from './Attachment.js'
 
 @Entity({ name: 'messages' })
 export class Message {
   @PrimaryGeneratedColumn('uuid') id!: string
-  @Index()
-  @Column({ type: 'uuid' }) ticketId!: string
-  @ManyToOne('Ticket', (t: Ticket) => t.messages, { eager: true })
+
+  @ManyToOne(() => Ticket, t => t.messages, { eager: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ticketId' })   // kolom FK di DB tetap bernama ticketId
   ticket!: Ticket
-  @Column({ length: 20 }) direction!: 'in' | 'out'
-  @Column({ type: 'text' }) body!: string
-  @Column({ nullable: true }) waMessageId?: string
-  @OneToMany('Attachment', (a: Attachment) => a.message)
+
+  @Column({ type: 'varchar', length: 20 })  // tulis tipe eksplisit, hindari ColumnTypeUndefinedError
+  direction!: 'in' | 'out'
+
+  @Column({ type: 'text' })
+  body!: string
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  waMessageId?: string
+
+  @OneToMany(() => Attachment, a => a.message)
   attachments!: Attachment[]
+
   @CreateDateColumn() createdAt!: Date
 }

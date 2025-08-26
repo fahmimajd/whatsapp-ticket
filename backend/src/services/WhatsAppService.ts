@@ -9,7 +9,8 @@ import mime from 'mime-types'
 import { TicketService } from './TicketService'
 import { io } from '../ws'
 import { AppDataSource } from '../database/data-source'
-import { Attachment } from '../entities/Attachment'
+import { Attachment } from '../entities/Attachment.js'
+import { Message as TicketMessage } from '../entities/Message.js'
 
 export class WhatsAppService {
   private static sock: ReturnType<typeof makeWASocket> | null = null
@@ -77,7 +78,7 @@ export class WhatsAppService {
 
         // Save text (and caption if any) as a message row
         const waMessageId = typeof msg.key.id === 'string' ? msg.key.id : undefined
-        const saved = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
+                const saved: TicketMessage = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
 
         // Handle media: image/video/document/audio
         const content = msg.message || {}
@@ -107,7 +108,12 @@ export class WhatsAppService {
 
           await fs.writeFile(filePath, buffer);
 
-          const att = attRepo.create({ messageId: saved.id, mime: mimeType, filename: fileName, path: filePath });
+              const att = attRepo.create({
+      message: saved,      // <-- relasi ke message
+      mime: mimeType,
+      filename: fileName,
+      path: filePath
+    });
           await attRepo.save(att);
 
           io.emit('ticket:updated', {

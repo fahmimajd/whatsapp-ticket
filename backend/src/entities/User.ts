@@ -6,7 +6,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid') id!: string
   @Index({ unique: true })
   @Column({ type: 'varchar' }) username!: string
-  @Column() passwordHash!: string
+  @Column({ type: 'varchar' }) passwordHash!: string
   @ManyToOne(() => Role, role => role.users, { eager: true })
   role!: Role
   @CreateDateColumn() createdAt!: Date

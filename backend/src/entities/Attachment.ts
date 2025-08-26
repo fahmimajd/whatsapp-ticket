@@ -1,14 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm'
+// src/entities/Attachment.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
 import { Message } from './Message.js'
 
 @Entity({ name: 'attachments' })
 export class Attachment {
   @PrimaryGeneratedColumn('uuid') id!: string
-  @Column() messageId!: string
-  @ManyToOne('Message', (message: Message) => message.attachments)
+
+  @ManyToOne(() => Message, m => m.attachments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'messageId' })   // kolom FK di DB tetap bernama messageId
   message!: Message
-  @Column() mime!: string
-  @Column() filename!: string
-  @Column() path!: string
+
+  @Column({ type: 'varchar', length: 255 }) mime!: string
+  @Column({ type: 'varchar', length: 255 }) filename!: string
+  @Column({ type: 'varchar', length: 1000 }) path!: string
+
   @CreateDateColumn() createdAt!: Date
 }
