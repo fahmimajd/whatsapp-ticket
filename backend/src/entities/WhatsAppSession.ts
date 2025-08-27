@@ -3,9 +3,9 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 @Entity({ name: 'wa_sessions' })
 export class WhatsAppSession {
   @PrimaryGeneratedColumn('uuid') id!: string
-  @Column({ unique: true }) name!: string // e.g., "primary"
+  @Column({ type: 'varchar', length: 255, unique: true }) name!: string // e.g., "primary"
   @Column({ type: 'longtext', nullable: true }) stateJson?: string // serialized auth state
-  @Column({ default: true }) isActive!: boolean
+  @Column({ type: 'boolean', default: true }) isActive!: boolean
   @CreateDateColumn() createdAt!: Date
   @UpdateDateColumn() updatedAt!: Date
 }

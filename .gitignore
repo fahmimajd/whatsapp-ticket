@@ -24,6 +24,12 @@ pnpm-debug.log*
 *.pem
 *.key
 *.crt
+*.p12
+*.pfx
+config.json
+secrets.json
+service-account.json
+credentials.json
 
 # --- Runtime data (jangan masuk repo)
 uploads/**

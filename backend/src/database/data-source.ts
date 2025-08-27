@@ -11,15 +11,19 @@ import { dirname } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-export const AppDataSource = new DataSource({
-  type: 'mysql',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 3306),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  synchronize: false, // use migrations in production
-  logging: false,
-  entities: [User, Role, Ticket, Message, WhatsAppSession, Attachment],
-  migrations: [__dirname + '/../migrations/*.js']
-})
+export function createDataSource() {
+  return new DataSource({
+    type: 'mysql',
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 3306),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    synchronize: false, // use migrations in production
+    logging: false,
+    entities: [User, Role, Ticket, Message, WhatsAppSession, Attachment],
+    migrations: [__dirname + '/../migrations/*.js']
+  })
+}
+
+export const AppDataSource = createDataSource()

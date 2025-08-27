@@ -1,0 +1,104 @@
+Oke, dua error itu karena:
+
+Message sudah tidak punya properti ticketId (kita pakai relasi ticket), tapi TicketService.addMessage() masih mengirim { ticketId, ... }.
+
+Tipe hasil addMessage() belum dipaksa ke Message, jadi di WhatsAppService variabel saved ter-infer jadi Message[] oleh overload repo.save → bikin attRepo.create({ message: saved }) error.
+
+Berikut patch langsung tempel.
+
+1) src/services/TicketService.ts — gunakan relasi ticket, dan pastikan return Message
+import { AppDataSource } from '../database/data-source'
+import { Ticket } from '../entities/Ticket'
+import { Message } from '../entities/Message'
+
+export class TicketService {
+  static async getOrCreateByWaId (waId: string, subject?: string) {
+    const repo = AppDataSource.getRepository(Ticket)
+    let ticket = await repo.findOne({ where: { customerWaId: waId, status: 'open' } })
+    if (!ticket) {
+      ticket = repo.create({ customerWaId: waId, subject: subject || 'New Conversation', status: 'open' })
+      await repo.save(ticket)
+    }
+    return ticket
+  }
+
+  // ⬇⬇⬇ GANTI fungsi ini
+  static async addMessage (
+    ticketId: string,
+    direction: 'in' | 'out',
+    body: string,
+    waMessageId?: string
+  ): Promise<Message> {
+    const repo = AppDataSource.getRepository(Message)
+    const m = repo.create({
+      // set relasi, bukan kolom FK manual
+      ticket: { id: ticketId } as Ticket,
+      direction,
+      body,
+      waMessageId
+    })
+    const saved: Message = await repo.save(m) // pastikan tipe tunggal
+    return saved
+  }
+}
+
+2) src/services/WhatsAppService.ts — pastikan saved bertipe Message, dan set relasi message saat buat attachment
+
+Di bagian messages.upsert:
+
+// sebelum
+// const saved = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
+
+// sesudah (eksplicitkan tipe — opsional tapi membantu TS)
+import { Message as TicketMessage } from '../entities/Message' // di atas file
+
+const saved: TicketMessage = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
+
+
+Di dalam fungsi saveMedia(...) saat membuat attachment:
+
+// sebelum
+// const att = attRepo.create({ messageId: saved.id, ... })  // (versi lama)
+// atau
+// const att = attRepo.create({ message: saved, ... })       // tetap, tapi error karena saved dianggap array
+
+// sesudah – pakai relasi 'message' + 'saved' bertipe Message
+const att = attRepo.create({
+  message: saved,
+  mime: mimeType,
+  filename: safeName /* atau fileName */,
+  path: filePath
+})
+await attRepo.save(att)
+
+
+Catatan: Jika sebelumnya kamu belum mengubah entitas, pastikan:
+
+Message tidak punya @Column() ticketId, tapi memakai:
+
+@ManyToOne(() => Ticket, t => t.messages, { eager: true, onDelete: 'CASCADE' })
+@JoinColumn({ name: 'ticketId' })
+ticket!: Ticket
+
+
+Attachment tidak punya @Column() messageId, tapi memakai:
+
+@ManyToOne(() => Message, m => m.attachments, { onDelete: 'CASCADE' })
+@JoinColumn({ name: 'messageId' })
+message!: Message
+
+3) (Pengingat) Tipe kolom eksplisit untuk cegah ColumnTypeUndefinedError
+
+Pastikan di Ticket.ts kolom pakai tipe eksplisit:
+
+@Column({ type: 'varchar', length: 255 }) customerWaId!: string
+@Column({ type: 'varchar', length: 255 }) subject!: string
+@Column({ type: 'varchar', length: 20, default: 'open' }) status!: TicketStatus
+@Column({ type: 'varchar', length: 36, nullable: true }) assignedToUserId?: string
+
+
+Dan di Message.ts:
+
+@Column({ type: 'varchar', length: 20 }) direction!: 'in' | 'out'
+@Column({ type: 'text' }) body!: string
+@Column({ type: 'varchar', length: 255, nullable: true }) waMessageId?: string
