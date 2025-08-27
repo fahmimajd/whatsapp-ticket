@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { AppDataSource } from '../database/data-source.js'
-import { User } from '../entities/User.js'
+import { AppDataSource } from '../database/data-source'
+import { User } from '../entities/User'
 
 export class AuthService {
   static async login (username: string, password: string) {

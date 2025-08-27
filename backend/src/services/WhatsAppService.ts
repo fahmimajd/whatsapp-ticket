@@ -9,8 +9,8 @@ import mime from 'mime-types'
 import { TicketService } from './TicketService'
 import { io } from '../ws'
 import { AppDataSource } from '../database/data-source'
-import { Attachment } from '../entities/Attachment.js'
-import { Message as TicketMessage } from '../entities/Message.js'
+import { Attachment } from '../entities/Attachment'
+import { Message as TicketMessage } from '../entities/Message'
 
 export class WhatsAppService {
   private static sock: ReturnType<typeof makeWASocket> | null = null

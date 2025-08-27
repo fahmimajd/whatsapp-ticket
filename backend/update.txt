@@ -1,104 +1,84 @@
-Oke, dua error itu karena:
+Itu error klasik TypeORM: No metadata for "User" was found muncul saat getRepository(User) dipanggil, tetapi User yang kamu kirim ke TypeORM berbeda dengan User yang didaftarkan di AppDataSource—alias TypeORM tidak mengenali entitasnya.
 
-Message sudah tidak punya properti ticketId (kita pakai relasi ticket), tapi TicketService.addMessage() masih mengirim { ticketId, ... }.
+Penyebab paling umum (dan cocok dengan repo kamu):
 
-Tipe hasil addMessage() belum dipaksa ke Message, jadi di WhatsAppService variabel saved ter-infer jadi Message[] oleh overload repo.save → bikin attRepo.create({ message: saved }) error.
+Import ganda/beda jalur untuk entitas
+Ada file yang meng-import entitas pakai akhiran .js (ESM style), sementara file lain tanpa akhiran. Ini bikin Node/ts-node memuat dua versi kelas User (modul berbeda), sehingga AppDataSource mendaftarkan satu versi, tapi AuthService meminta repo untuk versi lainnya → metadata tidak ketemu.
 
-Berikut patch langsung tempel.
+Inisialisasi/registrasi entitas tidak konsisten
+DataSource memuat entitas (OK), tapi service meng-import User dari path lain/berbeda resolusi (lihat poin 1).
+(Kurang umum: AppDataSource belum di-initialize saat login dipanggil — tapi index.ts kamu sudah await AppDataSource.initialize() sebelum listen.)
 
-1) src/services/TicketService.ts — gunakan relasi ticket, dan pastikan return Message
+Perbaikan cepat (pilih salah satu pendekatan — SARANKU: Pendekatan A)
+A) Standarkan import tanpa akhiran .js (cocok dengan moduleResolution: "Node")
+
+Pastikan semua import lokal di file TypeScript tanpa .js.
+
+Contoh (perbaiki di WhatsAppService.ts dan file lain kalau masih ada):
+
+// from (jangan pakai .js di TS)
+import { TicketService } from './TicketService'
+import { io } from '../ws'
 import { AppDataSource } from '../database/data-source'
-import { Ticket } from '../entities/Ticket'
-import { Message } from '../entities/Message'
+import { Attachment } from '../entities/Attachment'
 
-export class TicketService {
-  static async getOrCreateByWaId (waId: string, subject?: string) {
-    const repo = AppDataSource.getRepository(Ticket)
-    let ticket = await repo.findOne({ where: { customerWaId: waId, status: 'open' } })
-    if (!ticket) {
-      ticket = repo.create({ customerWaId: waId, subject: subject || 'New Conversation', status: 'open' })
-      await repo.save(ticket)
-    }
-    return ticket
-  }
 
-  // ⬇⬇⬇ GANTI fungsi ini
-  static async addMessage (
-    ticketId: string,
-    direction: 'in' | 'out',
-    body: string,
-    waMessageId?: string
-  ): Promise<Message> {
-    const repo = AppDataSource.getRepository(Message)
-    const m = repo.create({
-      // set relasi, bukan kolom FK manual
-      ticket: { id: ticketId } as Ticket,
-      direction,
-      body,
-      waMessageId
-    })
-    const saved: Message = await repo.save(m) // pastikan tipe tunggal
-    return saved
+Lalu pastikan semua file (AuthService, routes, services lain) konsisten pakai gaya yang sama (tanpa .js).
+
+Hint cari cepat:
+
+Linux/Mac: grep -R "from '.*\\.js'" -n src
+
+Windows PowerShell: Get-ChildItem -Recurse src | Select-String "from '.*\.js'"
+
+B) (Alternatif) Ubah ke NodeNext dan konsisten pakai .js di TS
+
+Kalau kamu memang mau gaya ESM penuh:
+
+Ubah tsconfig.json:
+
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    ...
   }
 }
 
-2) src/services/WhatsAppService.ts — pastikan saved bertipe Message, dan set relasi message saat buat attachment
 
-Di bagian messages.upsert:
+Lalu semua import lokal di TS harus pakai .js (supaya cocok dengan output).
 
-// sebelum
-// const saved = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
+Tambahan hardening (opsional tapi membantu debug)
 
-// sesudah (eksplicitkan tipe — opsional tapi membantu TS)
-import { Message as TicketMessage } from '../entities/Message' // di atas file
+Log entitas terdaftar saat startup
+Di src/index.ts, setelah await AppDataSource.initialize():
 
-const saved: TicketMessage = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
+console.log('[db] entities:', AppDataSource.entityMetadatas.map(m => m.name))
 
 
-Di dalam fungsi saveMedia(...) saat membuat attachment:
+Harusnya ada: User, Role, Ticket, Message, Attachment, WhatsAppSession.
 
-// sebelum
-// const att = attRepo.create({ messageId: saved.id, ... })  // (versi lama)
-// atau
-// const att = attRepo.create({ message: saved, ... })       // tetap, tapi error karena saved dianggap array
+Pastikan dekorator aman dari refleksi
+Kamu sudah import 'reflect-metadata' di baris pertama src/index.ts ✔
+Kita juga sudah eksplisitkan tipe kolom untuk entity lain. Untuk User, kalau perlu aman maksimal:
 
-// sesudah – pakai relasi 'message' + 'saved' bertipe Message
-const att = attRepo.create({
-  message: saved,
-  mime: mimeType,
-  filename: safeName /* atau fileName */,
-  path: filePath
-})
-await attRepo.save(att)
+@Column({ type: 'varchar', length: 255 }) username!: string
+@Column({ type: 'varchar', length: 255 }) passwordHash!: string
 
 
-Catatan: Jika sebelumnya kamu belum mengubah entitas, pastikan:
+(Biasanya tak wajib kalau metadata refleksi berjalan, tapi ini menghindari error “Column type … cannot be guessed”.)
 
-Message tidak punya @Column() ticketId, tapi memakai:
+Jalankan ulang bersih
 
-@ManyToOne(() => Ticket, t => t.messages, { eager: true, onDelete: 'CASCADE' })
-@JoinColumn({ name: 'ticketId' })
-ticket!: Ticket
+rm -rf dist
+pkill -f ts-node-dev  # atau stop proses dev yang lama
+npm run dev
 
+Kenapa error muncul saat hit /api/auth/login?
 
-Attachment tidak punya @Column() messageId, tapi memakai:
+AuthService.login() memanggil:
 
-@ManyToOne(() => Message, m => m.attachments, { onDelete: 'CASCADE' })
-@JoinColumn({ name: 'messageId' })
-message!: Message
-
-3) (Pengingat) Tipe kolom eksplisit untuk cegah ColumnTypeUndefinedError
-
-Pastikan di Ticket.ts kolom pakai tipe eksplisit:
-
-@Column({ type: 'varchar', length: 255 }) customerWaId!: string
-@Column({ type: 'varchar', length: 255 }) subject!: string
-@Column({ type: 'varchar', length: 20, default: 'open' }) status!: TicketStatus
-@Column({ type: 'varchar', length: 36, nullable: true }) assignedToUserId?: string
+const repo = AppDataSource.getRepository(User)
 
 
-Dan di Message.ts:
-
-@Column({ type: 'varchar', length: 20 }) direction!: 'in' | 'out'
-@Column({ type: 'text' }) body!: string
-@Column({ type: 'varchar', length: 255, nullable: true }) waMessageId?: string
+Kalau User yang di-import di sini ≠ User yang didaftarkan di AppDataSource.entities, TypeORM menganggap “tidak ada metadata untuk User” → error yang kamu lihat.

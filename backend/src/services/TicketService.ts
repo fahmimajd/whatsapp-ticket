@@ -1,6 +1,6 @@
-import { AppDataSource } from '../database/data-source.js'
-import { Ticket } from '../entities/Ticket.js'
-import { Message } from '../entities/Message.js'
+import { AppDataSource } from '../database/data-source'
+import { Ticket } from '../entities/Ticket'
+import { Message } from '../entities/Message'
 
 export class TicketService {
   static async getOrCreateByWaId (waId: string, subject?: string): Promise<Ticket> {

@@ -53,6 +53,7 @@ async function start () {
   try {
     await ensureDirs([process.env.UPLOAD_DIR || './uploads', process.env.WA_SESSION_DIR || './wa-sessions'])
     await AppDataSource.initialize()
+    console.log('[db] entities:', AppDataSource.entityMetadatas.map(m => m.name))
     server.listen(PORT, () => console.log(`[server] listening on :${PORT}`))
   } catch (err) {
     console.error('[server] failed to start:', err)
