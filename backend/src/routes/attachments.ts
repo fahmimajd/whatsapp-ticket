@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { requireAuth } from '../middleware/auth.js'
-import { AppDataSource } from '../database/data-source.js'
-import { Attachment } from '../entities/Attachment.js'
+import { requireAuth } from '../middleware/auth'
+import { AppDataSource } from '../database/data-source'
+import { Attachment } from '../entities/Attachment'
 import path from 'path'
 
 const r = Router()

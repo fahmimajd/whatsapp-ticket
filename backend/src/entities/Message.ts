@@ -1,7 +1,7 @@
 // src/entities/Message.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Index, OneToMany, JoinColumn } from 'typeorm'
-import { Ticket } from './Ticket.js'
-import { Attachment } from './Attachment.js'
+import { Ticket } from './Ticket'
+import { Attachment } from './Attachment'
 
 @Entity({ name: 'messages' })
 export class Message {
