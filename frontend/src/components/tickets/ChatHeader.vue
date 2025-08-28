@@ -7,11 +7,11 @@ const props = defineProps<{ ticket: Ticket | null }>()
 
 
 <template>
-<div class="h-12 border-b border-gray-200 px-4 flex items-center justify-between">
-<div>
-<div class="font-medium">{{ props.ticket?.contactName || props.ticket?.phone || '—' }}</div>
-<div class="text-xs text-gray-500">Status: {{ props.ticket?.status }}</div>
-</div>
-<slot />
+<div class="h-12 border-b border-gray-200 px-4 flex items-center justify-between dark:border-gray-700">
+  <div>
+    <div class="font-medium">{{ props.ticket?.contactName || props.ticket?.phone || '—' }}</div>
+    <div class="text-xs text-gray-500 dark:text-gray-400">Status: {{ props.ticket?.status }}</div>
+  </div>
+  <slot />
 </div>
 </template>

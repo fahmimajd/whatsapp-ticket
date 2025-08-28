@@ -37,9 +37,9 @@ export const useTicketStore = defineStore('ticket', {
       const t = await getTicket(id)
       this.messages = t.messages || []
     },
-    async send(body: string) {
+    async send(body: string, attachments: string[] = []) {
       if (!this.activeId) return
-      const msg = await replyTicket(this.activeId, body)
+      const msg = await replyTicket(this.activeId, body, attachments)
       this.messages.push(msg)
     },
     async setStatus(status: TicketStatus) {
@@ -50,7 +50,11 @@ export const useTicketStore = defineStore('ticket', {
     },
     upsertIncoming(msg: Message) {
       // dipanggil dari socket event `ticket:updated`
-      if (this.activeId === msg.ticketId) this.messages.push(msg)
+      if (this.activeId === msg.ticketId) {
+        this.messages.push(msg)
+        const lastOut = [...this.messages].reverse().find((m) => m.direction === 'out')
+        if (lastOut) lastOut.status = 'read'
+      }
       const t = this.tickets.find((tt) => tt.id === msg.ticketId)
       if (t) {
         t.lastMessage = msg.body
