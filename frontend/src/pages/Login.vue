@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRoute, useRouter } from 'vue-router'
 
-const email = ref('')
+const username = ref('')
 const password = ref('')
 const err = ref('')
 const loading = ref(false)
@@ -15,11 +15,11 @@ async function onSubmit() {
   loading.value = true
   err.value = ''
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(username.value, password.value)
     const to = (route.query.redirect as string) || '/tickets'
     router.replace(to)
   } catch (e: any) {
-    err.value = e?.response?.data?.message || 'Login gagal'
+    err.value = e?.response?.data?.error || 'Login gagal'
   } finally {
     loading.value = false
   }
@@ -35,8 +35,8 @@ async function onSubmit() {
       <h1 class="text-2xl font-semibold mb-4">Masuk ke watiket</h1>
       <div class="space-y-3">
         <div>
-          <label class="text-sm">Email</label>
-          <input v-model="email" type="email" class="w-full border rounded-lg px-3 py-2" />
+          <label class="text-sm">Username</label>
+          <input v-model="username" type="text" class="w-full border rounded-lg px-3 py-2" />
         </div>
         <div>
           <label class="text-sm">Password</label>
