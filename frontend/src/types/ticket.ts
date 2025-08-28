@@ -9,6 +9,15 @@ export interface Message {
   to: string
   direction: 'in' | 'out'
   timestamp: string
+  status: 'sent' | 'read'
+  attachments?: Attachment[]
+}
+
+export interface Attachment {
+  id: string
+  mime: string
+  filename: string
+  path: string
 }
 
 

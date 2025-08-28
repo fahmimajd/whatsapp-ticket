@@ -11,8 +11,8 @@ export async function getTicket(id: number) {
   return data
 }
 
-export async function replyTicket(id: number, body: string) {
-  const { data } = await http.post<Message>(`tickets/${id}/reply`, { body })
+export async function replyTicket(id: number, body: string, attachments: string[] = []) {
+  const { data } = await http.post<Message>(`tickets/${id}/reply`, { body, attachments })
   return data
 }
 
