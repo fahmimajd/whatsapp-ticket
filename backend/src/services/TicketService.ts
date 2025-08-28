@@ -1,6 +1,8 @@
 import { AppDataSource } from '../database/data-source'
 import { Ticket } from '../entities/Ticket'
 import { Message } from '../entities/Message'
+import { Attachment } from '../entities/Attachment'
+import { In } from 'typeorm'
 
 export class TicketService {
   static async getOrCreateByWaId (waId: string, subject?: string): Promise<Ticket> {
@@ -17,9 +19,16 @@ export class TicketService {
     ticketId: string,
     direction: 'in' | 'out',
     body: string,
-    waMessageId?: string
+    waMessageId?: string,
+    attachmentIds: string[] = []
   ): Promise<Message> {
     const repo = AppDataSource.getRepository(Message)
+    const attRepo = AppDataSource.getRepository(Attachment)
+
+    if (direction === 'in') {
+      await repo.update({ ticket: { id: ticketId }, direction: 'out', status: 'sent' }, { status: 'read' })
+    }
+
     const m = repo.create({
       ticket: { id: ticketId } as Ticket,
       direction,
@@ -27,6 +36,11 @@ export class TicketService {
       waMessageId
     })
     const saved: Message = await repo.save(m)
-    return saved
+
+    if (attachmentIds.length) {
+      await attRepo.update({ id: In(attachmentIds) }, { message: { id: saved.id } as Message })
+    }
+
+    return await repo.findOne({ where: { id: saved.id }, relations: { attachments: true } }) as Message
   }
 }

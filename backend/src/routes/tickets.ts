@@ -11,16 +11,30 @@ r.use(requireAuth)
 
 r.get('/', async (req, res) => {
   const repo = AppDataSource.getRepository(Ticket)
-  const items = await repo.find({ order: { updatedAt: 'DESC' }, take: 100 })
+  const qb = repo.createQueryBuilder('t').orderBy('t.updatedAt', 'DESC').take(100)
+  const { q, status } = req.query as any
+  if (status) qb.andWhere('t.status = :status', { status })
+  if (q) qb.andWhere('(t.subject LIKE :q OR t.customerWaId LIKE :q)', { q: `%${q}%` })
+  const items = await qb.getMany()
   res.json(items)
+})
+
+r.get('/:id', async (req, res) => {
+  const repo = AppDataSource.getRepository(Ticket)
+  const t = await repo.findOne({
+    where: { id: req.params.id },
+    relations: { messages: { attachments: true } }
+  })
+  if (!t) return res.status(404).json({ error: 'Not found' })
+  res.json(t)
 })
 
 r.post('/:id/reply', requireRole('admin', 'operator'), async (req, res) => {
   try {
     const id = req.params.id
-    const { text, waId } = req.body
-    const sent = await WhatsAppService.sendText(waId, text)
-    const saved = await TicketService.addMessage(id, 'out', text, sent?.key?.id ?? undefined)
+    const { body, waId, attachments = [] } = req.body
+    const sent = await WhatsAppService.sendText(waId, body)
+    const saved = await TicketService.addMessage(id, 'out', body, sent?.key?.id ?? undefined, attachments)
     res.json(saved)
   } catch (e: any) {
     res.status(400).json({ error: e.message })

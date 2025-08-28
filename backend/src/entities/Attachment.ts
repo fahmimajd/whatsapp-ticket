@@ -6,9 +6,9 @@ import { Message } from './Message'
 export class Attachment {
   @PrimaryGeneratedColumn('uuid') id!: string
 
-  @ManyToOne(() => Message, m => m.attachments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Message, m => m.attachments, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'messageId' })   // kolom FK di DB tetap bernama messageId
-  message!: Message
+  message?: Message
 
   @Column({ type: 'varchar', length: 255 }) mime!: string
   @Column({ type: 'varchar', length: 255 }) filename!: string
