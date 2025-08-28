@@ -10,11 +10,6 @@ const items = ref<User[]>([])
 const showForm = ref(false)
 const form = ref({ username: '', password: '', role: 'operator' })
 
-import { listUsers } from '@/api/users'
-import type { User } from '@/types/user'
-
-const items = ref<User[]>([])
-
 
 onMounted(async () => {
   items.value = await listUsers()

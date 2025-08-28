@@ -1,7 +1,4 @@
 <script setup lang="ts">
-
-import { onMounted, onBeforeUnmount } from 'vue'
-
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
 import AppSidebar from '@/components/layout/AppSidebar.vue'
@@ -53,18 +50,12 @@ async function send(payload: { body: string; attachments: string[] }) {
 function onSearch(q: string) {
   ticket.filter.q = q
   ticket.fetchTickets()
-
-}
-
-function onSearch(q: string) {
-  ticket.filter.q = q
-  ticket.fetchTickets()
 }
 
 watch(
   () => waState.value?.qr,
   (qr) => {
-    if (waState.value?.state === 'qr' && qrCanvas.value && qr) {
+    if (waState.value?.connection === 'connecting' && qrCanvas.value && qr) {
       QRCode.toCanvas(qrCanvas.value, qr as string)
     }
   },
@@ -126,9 +117,9 @@ watch(
       <Modal :open="showQr" @close="showQr = false">
         <h2 class="text-lg font-semibold mb-2">WhatsApp Connection</h2>
         <p class="text-sm text-gray-600 mb-3">
-          State: <b>{{ waState?.state || 'unknown' }}</b>
+          State: <b>{{ waState?.connection || 'unknown' }}</b>
         </p>
-        <div v-if="waState?.state === 'qr'">
+        <div v-if="waState?.connection === 'connecting'">
           <p class="text-sm text-gray-600 mb-2">Scan QR berikut di WhatsApp:</p>
           <canvas ref="qrCanvas" class="mx-auto"></canvas>
         </div>
@@ -140,4 +131,3 @@ watch(
     </div>
   </div>
 </template>
-
