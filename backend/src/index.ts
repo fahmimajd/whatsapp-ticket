@@ -23,7 +23,11 @@ import cookieParser from 'cookie-parser'
 import rateLimit from 'express-rate-limit'
 import http from 'http'
 import { Server as IOServer } from 'socket.io'
+
 import { AppDataSource, createDataSource } from './database/data-source'
+
+import { createDataSource } from './database/data-source'
+
 import { registerRoutes } from './routes'
 import { initWS } from './ws'
 import { ensureDirs } from './utils/fs'
