@@ -15,7 +15,6 @@ onMounted(async () => {
   items.value = await listUsers()
 })
 
-
 async function add() {
   const user = await createUser(form.value)
   items.value.push(user)

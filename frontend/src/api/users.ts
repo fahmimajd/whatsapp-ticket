@@ -11,4 +11,3 @@ export async function createUser(payload: { username: string; password: string; 
   const { data } = await http.post<User>('users', payload)
   return data
 }
-

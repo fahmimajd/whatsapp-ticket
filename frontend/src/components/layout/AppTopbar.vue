@@ -4,9 +4,17 @@ const theme = useThemeStore()
 </script>
 
 <template>
+
+  <header
+    class="h-12 border-b border-gray-200 flex items-center justify-between px-4 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+  >
+    <div class="font-medium">Tickets</div>
+    <div class="flex items-center gap-3">
+
   <header class="h-12 border-b border-gray-200 flex items-center justify-between px-4 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
     <div class="font-medium">Tickets</div>
     <div class="flex items-center gap-3">
+
 
       <button class="p-2 border rounded" @click="theme.toggle()" aria-label="Toggle theme">
         <svg v-if="theme.dark" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -16,8 +24,10 @@ const theme = useThemeStore()
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8 8 0 1010.586 10.586z" />
         </svg>
 
+
       <button class="text-sm px-2 py-1 border rounded" @click="theme.toggle()">
         {{ theme.dark ? 'Light' : 'Dark' }}
+
 
       </button>
       <slot />

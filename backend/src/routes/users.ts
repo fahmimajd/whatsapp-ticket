@@ -7,6 +7,12 @@ import { Role } from '../entities/Role'
 import bcrypt from 'bcryptjs'
 
 
+
+import { Role } from '../entities/Role'
+import bcrypt from 'bcryptjs'
+
+
+
 const r = Router()
 
 r.use(requireAuth, requireRole('admin'))
