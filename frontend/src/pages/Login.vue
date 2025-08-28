@@ -15,10 +15,16 @@ async function onSubmit() {
   loading.value = true
   err.value = ''
   try {
-    await auth.login(username.value, password.value)
+    console.log('Attempting login with:', username.value)
+    const result = await auth.login(username.value, password.value)
+    console.log('Login successful:', result)
     const to = (route.query.redirect as string) || '/tickets'
     router.replace(to)
   } catch (e: any) {
+    console.error('Login error:', e)
+    console.error('Error response:', e?.response)
+    console.error('Error status:', e?.response?.status)
+    console.error('Error data:', e?.response?.data)
     err.value = e?.response?.data?.error || 'Login gagal'
   } finally {
     loading.value = false
@@ -50,4 +56,3 @@ async function onSubmit() {
     </form>
   </div>
 </template>
-

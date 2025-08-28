@@ -19,6 +19,11 @@ http.interceptors.request.use((config) => {
 http.interceptors.response.use(
   (res) => res,
   async (err) => {
+    console.error('HTTP Error:', err)
+    console.error('Error response:', err.response)
+    console.error('Error status:', err.response?.status)
+    console.error('Error data:', err.response?.data)
+    
     if (err.response?.status === 401) {
       const auth = useAuthStore()
       auth.logout()
@@ -34,4 +39,3 @@ http.interceptors.response.use(
 )
 
 export default http
-
