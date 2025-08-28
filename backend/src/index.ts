@@ -18,6 +18,7 @@ import http from 'http'
 import { Server as IOServer } from 'socket.io'
 
 import { AppDataSource, createDataSource } from './database/data-source'
+
 import { registerRoutes } from './routes'
 import { initWS } from './ws'
 import { ensureDirs } from './utils/fs'
