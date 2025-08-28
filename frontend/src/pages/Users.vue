@@ -10,7 +10,6 @@ const items = ref<User[]>([])
 const showForm = ref(false)
 const form = ref({ username: '', password: '', role: 'operator' })
 
-
 onMounted(async () => {
   items.value = await listUsers()
 })

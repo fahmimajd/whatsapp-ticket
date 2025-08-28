@@ -1,9 +1,6 @@
 <script setup lang="ts">
 
-import { onMounted, onBeforeUnmount } from 'vue'
-
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-
 
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
@@ -22,13 +19,9 @@ const ticket = useTicketStore()
 
 useSocket()
 
-
-useSocket()
-
 const { waState } = useSocket()
 const showQr = ref(false)
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
-
 
 
 function onTicketUpdated(e: Event) {
@@ -122,7 +115,6 @@ watch(
       </div>
 
 
-
       <Modal :open="showQr" @close="showQr = false">
         <h2 class="text-lg font-semibold mb-2">WhatsApp Connection</h2>
         <p class="text-sm text-gray-600 mb-3">
@@ -136,7 +128,6 @@ watch(
           Tidak ada QR tersedia saat ini.
         </div>
       </Modal>
-
 
     </div>
   </div>

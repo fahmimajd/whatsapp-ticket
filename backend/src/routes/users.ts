@@ -6,13 +6,6 @@ import { User } from '../entities/User'
 import { Role } from '../entities/Role'
 import bcrypt from 'bcryptjs'
 
-
-
-import { Role } from '../entities/Role'
-import bcrypt from 'bcryptjs'
-
-
-
 const r = Router()
 
 r.use(requireAuth, requireRole('admin'))
@@ -42,6 +35,5 @@ r.post('/', async (req, res) => {
   await userRepo.save(user)
   res.json({ id: user.id, username: user.username, role: user.role.name })
 })
-
 
 export default r
