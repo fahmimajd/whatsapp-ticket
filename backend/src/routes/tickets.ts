@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { requireAuth, requireRole } from '../middleware/auth.js'
-import { AppDataSource } from '../database/data-source.js'
-import { Ticket } from '../entities/Ticket.js'
-import { TicketService } from '../services/TicketService.js'
-import { WhatsAppService } from '../services/WhatsAppService.js'
+import { requireAuth, requireRole } from '../middleware/auth'
+import { AppDataSource } from '../database/data-source'
+import { Ticket } from '../entities/Ticket'
+import { TicketService } from '../services/TicketService'
+import { WhatsAppService } from '../services/WhatsAppService'
 
 const r = Router()
 

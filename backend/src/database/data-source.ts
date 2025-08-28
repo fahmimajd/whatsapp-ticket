@@ -11,8 +11,10 @@ import { dirname } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+export let AppDataSource: DataSource
+
 export function createDataSource() {
-  return new DataSource({
+  AppDataSource = new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT || 3306),
@@ -24,6 +26,5 @@ export function createDataSource() {
     entities: [User, Role, Ticket, Message, WhatsAppSession, Attachment],
     migrations: [__dirname + '/../migrations/*.js']
   })
+  return AppDataSource
 }
-
-export const AppDataSource = createDataSource()
