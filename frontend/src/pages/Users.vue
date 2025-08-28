@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
+
 import { listUsers, createUser } from '@/api/users'
 import type { User } from '@/types/user'
 
@@ -9,9 +10,16 @@ const items = ref<User[]>([])
 const showForm = ref(false)
 const form = ref({ username: '', password: '', role: 'operator' })
 
+import { listUsers } from '@/api/users'
+import type { User } from '@/types/user'
+
+const items = ref<User[]>([])
+
+
 onMounted(async () => {
   items.value = await listUsers()
 })
+
 
 async function add() {
   const user = await createUser(form.value)
@@ -19,6 +27,7 @@ async function add() {
   form.value = { username: '', password: '', role: 'operator' }
   showForm.value = false
 }
+
 </script>
 
 <template>
@@ -28,6 +37,7 @@ async function add() {
       <AppTopbar />
       <div class="p-6">
         <h2 class="text-xl font-semibold mb-4">Users</h2>
+
         <button class="mb-4 px-3 py-1.5 border rounded" @click="showForm = !showForm">
           {{ showForm ? 'Cancel' : 'Add User' }}
         </button>
@@ -40,6 +50,7 @@ async function add() {
           </select>
           <button class="px-3 py-1.5 border rounded" @click="add">Save</button>
         </div>
+
         <table class="min-w-[20rem] text-sm">
           <thead>
             <tr class="text-left border-b">
