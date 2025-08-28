@@ -22,6 +22,7 @@ import { AppDataSource, createDataSource } from './database/data-source'
 import { registerRoutes } from './routes'
 import { initWS } from './ws'
 import { ensureDirs } from './utils/fs'
+import { WhatsAppService } from './services/WhatsAppService'
 
 // Create DataSource after environment variables are loaded
 // and expose the shared instance from data-source
@@ -50,6 +51,17 @@ async function start () {
     await ensureDirs([process.env.UPLOAD_DIR || './uploads', process.env.WA_SESSION_DIR || './wa-sessions'])
     await AppDataSource.initialize()
     console.log('[db] entities:', AppDataSource.entityMetadatas.map(m => m.name))
+    
+    // Auto-start WhatsApp service
+    if (process.env.WA_AUTO_START !== 'false') {
+      console.log('[wa] Auto-starting WhatsApp service...')
+      WhatsAppService.start().catch(err => {
+        console.error('[wa] Failed to auto-start WhatsApp service:', err)
+      })
+    } else {
+      console.log('[wa] Auto-start disabled (WA_AUTO_START=false)')
+    }
+    
     server.listen(PORT, () => console.log(`[server] listening on :${PORT}`))
   } catch (err) {
     console.error('[server] failed to start:', err)
