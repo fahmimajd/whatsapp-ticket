@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { requireAuth, requireRole } from '../middleware/auth.js'
-import { WhatsAppService } from '../services/WhatsAppService.js'
+import { requireAuth, requireRole } from '../middleware/auth'
+import { WhatsAppService } from '../services/WhatsAppService'
 import { promises as fs } from 'fs'
 import path from 'path'
 

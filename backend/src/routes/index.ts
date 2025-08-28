@@ -1,8 +1,8 @@
 import { Express } from 'express'
-import auth from './auth.js'
-import tickets from './tickets.js'
-import whatsapp from './whatsapp.js'
-import attachments from './attachments.js'
+import auth from './auth'
+import tickets from './tickets'
+import whatsapp from './whatsapp'
+import attachments from './attachments'
 
 export function registerRoutes (app: Express) {
   app.use('/api/auth', auth)

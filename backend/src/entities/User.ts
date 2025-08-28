@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm'
-import { Role } from './Role.js'
+import { Role } from './Role'
 
 @Entity({ name: 'users' })
 export class User {
