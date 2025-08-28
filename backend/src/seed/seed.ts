@@ -1,9 +1,9 @@
 import 'reflect-metadata'
 import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
-import { AppDataSource } from '../database/data-source.js'
-import { Role } from '../entities/Role.js'
-import { User } from '../entities/User.js'
+import { AppDataSource } from '../database/data-source'
+import { Role } from '../entities/Role'
+import { User } from '../entities/User'
 
 dotenv.config()
 
