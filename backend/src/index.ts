@@ -1,19 +1,12 @@
 import { config } from 'dotenv'
 import { fileURLToPath } from 'url'
-import { dirname, resolve } from 'path'
+import { dirname } from 'path'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 // Load environment variables
-console.log('Current working directory:', process.cwd())
-const result = config()
-if (result.error) {
-  console.error('Failed to load .env file:', result.error)
-} else {
-  console.log('Environment variables loaded successfully')
-  console.log('DB_USERNAME:', process.env.DB_USERNAME)
-}
+config()
 
 import 'reflect-metadata'
 import express from 'express'
@@ -27,6 +20,7 @@ import { Server as IOServer } from 'socket.io'
 import { AppDataSource, createDataSource } from './database/data-source'
 
 import { createDataSource } from './database/data-source'
+
 
 import { registerRoutes } from './routes'
 import { initWS } from './ws'
