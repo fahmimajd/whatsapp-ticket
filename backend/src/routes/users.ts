@@ -2,8 +2,16 @@ import { Router } from 'express'
 import { requireAuth, requireRole } from '../middleware/auth'
 import { AppDataSource } from '../database/data-source'
 import { User } from '../entities/User'
+
 import { Role } from '../entities/Role'
 import bcrypt from 'bcryptjs'
+
+
+
+import { Role } from '../entities/Role'
+import bcrypt from 'bcryptjs'
+
+
 
 const r = Router()
 
@@ -14,6 +22,7 @@ r.get('/', async (req, res) => {
   const users = await repo.find({ relations: { role: true } })
   res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role.name })))
 })
+
 
 r.post('/', async (req, res) => {
   const { username, password, role } = req.body as { username: string; password: string; role?: string }
@@ -33,5 +42,6 @@ r.post('/', async (req, res) => {
   await userRepo.save(user)
   res.json({ id: user.id, username: user.username, role: user.role.name })
 })
+
 
 export default r
