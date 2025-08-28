@@ -1,6 +1,6 @@
 // src/entities/Attachment.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
-import { Message } from './Message.js'
+import { Message } from './Message'
 
 @Entity({ name: 'attachments' })
 export class Attachment {

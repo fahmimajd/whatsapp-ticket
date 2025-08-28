@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm'
-import { Message } from './Message.js'
+import { Message } from './Message'
 
 export type TicketStatus = 'open' | 'pending' | 'resolved' | 'closed'
 
