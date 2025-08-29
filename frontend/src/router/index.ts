@@ -14,7 +14,13 @@ const routes: RouteRecordRaw[] = [
     path: '/settings',
     name: 'settings',
     component: () => import('@/pages/Settings.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, roles: ['admin'] },
+  },
+  {
+    path: '/users',
+    name: 'users',
+    component: () => import('@/pages/Users.vue'),
+    meta: { requiresAuth: true, roles: ['admin'] },
   },
 ]
 
@@ -27,6 +33,10 @@ router.beforeEach((to) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
+  }
+  const roles = (to.meta as any).roles as string[] | undefined
+  if (roles && !roles.includes(auth.user?.role || '')) {
+    return { name: 'tickets' }
   }
 })
 
