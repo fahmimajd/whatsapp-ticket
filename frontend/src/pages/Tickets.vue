@@ -16,13 +16,11 @@ import QRCode from 'qrcode'
 
 const auth = useAuthStore()
 const ticket = useTicketStore()
-
 useSocket()
 
 const { waState } = useSocket()
 const showQr = ref(false)
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
-
 
 
 function onTicketUpdated(e: Event) {
@@ -46,14 +44,11 @@ function openTicket(id: number) {
 
 async function send(payload: { body: string; attachments: string[] }) {
   await ticket.send(payload.body, payload.attachments)
-
 }
 
 function onSearch(q: string) {
   ticket.filter.q = q
   ticket.fetchTickets()
-
-
 
 }
 
