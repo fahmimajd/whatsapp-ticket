@@ -32,6 +32,11 @@ watch(
 <template>
   <div class="h-screen grid grid-cols-[16rem_1fr] dark:bg-gray-800 dark:text-gray-100">
     <AppSidebar />
+
+    <section class="flex flex-col">
+      <AppTopbar />
+      <main class="p-6 space-y-6">
+
     <div class="flex flex-col">
       <AppTopbar />
 
@@ -57,10 +62,15 @@ watch(
         </div>
 
       </main>
+    </section>
+
+
+      </main>
 
       </div>
 
     </div>
+
   </div>
 </template>
 

@@ -24,6 +24,7 @@ const showQr = ref(false)
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
 
 
+
 function onTicketUpdated(e: Event) {
   const msg = (e as CustomEvent<Message>).detail
   ticket.upsertIncoming(msg)
@@ -45,6 +46,14 @@ function openTicket(id: number) {
 
 async function send(payload: { body: string; attachments: string[] }) {
   await ticket.send(payload.body, payload.attachments)
+
+}
+
+function onSearch(q: string) {
+  ticket.filter.q = q
+  ticket.fetchTickets()
+
+
 
 }
 
@@ -128,6 +137,7 @@ watch(
           Tidak ada QR tersedia saat ini.
         </div>
       </Modal>
+
 
     </div>
   </div>

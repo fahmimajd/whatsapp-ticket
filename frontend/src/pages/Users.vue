@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
-
 import { listUsers, createUser } from '@/api/users'
 import type { User } from '@/types/user'
 
