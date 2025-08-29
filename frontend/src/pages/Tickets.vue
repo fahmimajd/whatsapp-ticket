@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-
+import { onMounted, onBeforeUnmount } from 'vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import TicketList from '@/components/tickets/TicketList.vue'
@@ -11,15 +10,10 @@ import { useAuthStore } from '@/stores/auth'
 import { useTicketStore } from '@/stores/ticket'
 import { useSocket } from '@/composables/useSocket'
 import type { Message } from '@/types/ticket'
-import QRCode from 'qrcode'
 
 const auth = useAuthStore()
 const ticket = useTicketStore()
 useSocket()
-
-const { waState } = useSocket()
-const showQr = ref(false)
-const qrCanvas = ref<HTMLCanvasElement | null>(null)
 
 function onTicketUpdated(e: Event) {
   const msg = (e as CustomEvent<Message>).detail
@@ -48,15 +42,6 @@ function onSearch(q: string) {
   ticket.filter.q = q
   ticket.fetchTickets()
 }
-
-watch(
-  () => waState.value?.qr,
-  (qr) => {
-    if (waState.value?.connection === 'connecting' && qrCanvas.value && qr) {
-      QRCode.toCanvas(qrCanvas.value, qr as string)
-    }
-  },
-)
 </script>
 
 <template>
@@ -109,22 +94,6 @@ watch(
           <Composer @send="send" />
         </div>
       </div>
-
-
-      <Modal :open="showQr" @close="showQr = false">
-        <h2 class="text-lg font-semibold mb-2">WhatsApp Connection</h2>
-        <p class="text-sm text-gray-600 mb-3">
-          State: <b>{{ waState?.connection || 'unknown' }}</b>
-        </p>
-        <div v-if="waState?.connection === 'connecting'">
-          <p class="text-sm text-gray-600 mb-2">Scan QR berikut di WhatsApp:</p>
-          <canvas ref="qrCanvas" class="mx-auto"></canvas>
-        </div>
-        <div v-else class="text-sm text-gray-600">
-          Tidak ada QR tersedia saat ini.
-        </div>
-      </Modal>
-
 
     </div>
   </div>
