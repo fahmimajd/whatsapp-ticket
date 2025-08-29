@@ -20,6 +20,9 @@ export class Message {
   @Column({ type: 'varchar', length: 255, nullable: true })
   waMessageId?: string
 
+  @Column({ type: 'varchar', length: 20, default: 'sent' })
+  status!: 'sent' | 'read'
+
   @OneToMany(() => Attachment, a => a.message)
   attachments!: Attachment[]
 

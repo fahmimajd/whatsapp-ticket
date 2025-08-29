@@ -1,4 +1,4 @@
 export interface WaConnectionPayload {
-  state: 'connecting' | 'qr' | 'open' | 'close' | 'error'
-  qr?: string // bila backend kirim qr string
+  connection?: 'connecting' | 'open' | 'close'
+  qr: string | null
 }
