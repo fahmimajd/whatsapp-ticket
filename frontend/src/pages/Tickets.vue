@@ -98,4 +98,3 @@ function onSearch(q: string) {
     </div>
   </div>
 </template>
-

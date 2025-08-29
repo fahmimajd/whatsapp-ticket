@@ -64,4 +64,3 @@ watch(
     </section>
   </div>
 </template>
-
