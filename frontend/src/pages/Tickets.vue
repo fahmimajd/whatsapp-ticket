@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
 import AppSidebar from '@/components/layout/AppSidebar.vue'
@@ -22,7 +21,6 @@ const { waState } = useSocket()
 const showQr = ref(false)
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
 
-
 function onTicketUpdated(e: Event) {
   const msg = (e as CustomEvent<Message>).detail
   ticket.upsertIncoming(msg)
@@ -44,12 +42,6 @@ function openTicket(id: number) {
 
 async function send(payload: { body: string; attachments: string[] }) {
   await ticket.send(payload.body, payload.attachments)
-}
-
-function onSearch(q: string) {
-  ticket.filter.q = q
-  ticket.fetchTickets()
-
 }
 
 function onSearch(q: string) {
