@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import router from '@/router'
 import { login as apiLogin, me } from '@/api/auth'
 import type { User } from '@/types/auth'
 
@@ -36,6 +37,9 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.user = null
       localStorage.removeItem('token')
+      if (router.currentRoute.value.name !== 'login') {
+        router.replace({ name: 'login' })
+      }
     },
   },
 })
