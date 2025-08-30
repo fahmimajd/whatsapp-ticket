@@ -19,11 +19,12 @@ export class WhatsAppService {
   static async start () {
     if (WhatsAppService.sock) return WhatsAppService.sock
     const sessionDir = process.env.WA_SESSION_DIR || './wa-sessions'
+    const primaryDir = path.join(sessionDir, 'primary')
 
     // Ensure directory exists
-    await fs.mkdir(sessionDir, { recursive: true })
+    await fs.mkdir(primaryDir, { recursive: true })
 
-    const { state, saveCreds } = await useMultiFileAuthState(path.join(sessionDir, 'primary'))
+    const { state, saveCreds } = await useMultiFileAuthState(primaryDir)
 
     const sock = makeWASocket({
       printQRInTerminal: true,
