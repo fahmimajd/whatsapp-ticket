@@ -36,19 +36,21 @@ export class WhatsAppService {
     sock.ev.on('connection.update', (u) => {
       const { connection, lastDisconnect, qr } = u
 
-        if (qr) {
-          WhatsAppService.lastQR = qr
-          try { 
-            qrcode.generate(qr, { small: true }) 
-            console.log('[wa] QR code generated, please scan with WhatsApp')
-          } catch (e) {
-            console.error('[wa] Error generating QR:', e)
-          }
-        } else {
-          WhatsAppService.lastQR = null
-        }
+      if (qr) {
+        WhatsAppService.lastQR = qr
+        try { 
+          qrcode.generate(qr, { small: true }) 
+          console.log('[wa] QR code generated, please scan with WhatsApp')
+        } catch (e) {
+          console.error('[wa] Error generating QR:', e)
 
-        io.emit('wa:connection', { connection, qr: qr || null })
+        }
+      } else {
+        WhatsAppService.lastQR = null
+      }
+
+
+      io.emit('wa:connection', { connection, qr: qr || null })
 
       if (connection === 'close') {
         console.log('[wa] Connection closed:', lastDisconnect?.error)
@@ -63,24 +65,25 @@ export class WhatsAppService {
       }
     })
 
-      sock.ev.on('messages.upsert', async (m) => {
-        try {
-          const msg = m.messages?.[0]
-          if (!msg || msg.key.fromMe) return
-          
-          const waId = msg.key.remoteJid!
-          const text = extractText(msg)
-          
-          if (!TicketService || !AppDataSource) {
-            console.log('[wa] Service not ready, skipping message processing')
-            return
-          }
-          
-          const ticket = await TicketService.getOrCreateByWaId(waId, 'Incoming WhatsApp')
+    sock.ev.on('messages.upsert', async (m) => {
+      try {
+        const msg = m.messages?.[0]
+        if (!msg || msg.key.fromMe) return
+        
+        const waId = msg.key.remoteJid!
+        const text = extractText(msg)
+        
+        if (!TicketService || !AppDataSource) {
+          console.log('[wa] Service not ready, skipping message processing')
+          return
+        }
+        
+        const ticket = await TicketService.getOrCreateByWaId(waId, 'Incoming WhatsApp')
+
 
         // Save text (and caption if any) as a message row
         const waMessageId = typeof msg.key.id === 'string' ? msg.key.id : undefined
-                const saved: TicketMessage = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
+        const saved: TicketMessage = await TicketService.addMessage(ticket.id, 'in', text, waMessageId)
 
         // Handle media: image/video/document/audio
         const content = msg.message || {}
@@ -110,12 +113,12 @@ export class WhatsAppService {
 
           await fs.writeFile(filePath, buffer);
 
-              const att = attRepo.create({
-      message: saved,      // <-- relasi ke message
-      mime: mimeType,
-      filename: fileName,
-      path: filePath
-    });
+          const att = attRepo.create({
+            message: saved,      // <-- relasi ke message
+            mime: mimeType,
+            filename: fileName,
+            path: filePath
+          });
           await attRepo.save(att);
 
           io.emit('ticket:updated', {
