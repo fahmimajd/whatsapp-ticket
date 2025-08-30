@@ -36,6 +36,7 @@ export class WhatsAppService {
     sock.ev.on('connection.update', (u) => {
       const { connection, lastDisconnect, qr } = u
 
+
       if (qr) {
         WhatsAppService.lastQR = qr
         try { 
@@ -43,12 +44,14 @@ export class WhatsAppService {
           console.log('[wa] QR code generated, please scan with WhatsApp')
         } catch (e) {
           console.error('[wa] Error generating QR:', e)
+
         }
       } else {
         WhatsAppService.lastQR = null
       }
 
       io.emit('wa:connection', { connection, qr: qr || null })
+
 
       if (connection === 'close') {
         console.log('[wa] Connection closed:', lastDisconnect?.error)
@@ -62,6 +65,7 @@ export class WhatsAppService {
         console.log('[wa] Connected successfully')
       }
     })
+
 
     sock.ev.on('messages.upsert', async (m) => {
       try {
@@ -77,6 +81,7 @@ export class WhatsAppService {
         }
         
         const ticket = await TicketService.getOrCreateByWaId(waId, 'Incoming WhatsApp')
+
 
         // Save text (and caption if any) as a message row
         const waMessageId = typeof msg.key.id === 'string' ? msg.key.id : undefined

@@ -23,6 +23,11 @@ export const useAuthStore = defineStore('auth', {
       }
       try {
         this.user = await me()
+      } catch (err) {
+        console.error('Auth bootstrap failed', err)
+        this.token = null
+        this.user = null
+        localStorage.removeItem('token')
       } finally {
         this.ready = true
       }

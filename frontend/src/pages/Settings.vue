@@ -4,20 +4,30 @@ import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useSocket } from '@/composables/useSocket'
-import { startWhatsApp } from '@/api/whatsapp'
+import { startWhatsApp, resetWhatsApp } from '@/api/whatsapp'
 import QRCode from 'qrcode'
 
 const auth = useAuthStore()
 const { waState } = useSocket()
 const qrCanvas = ref<HTMLCanvasElement | null>(null)
-const loading = ref(false)
+const startLoading = ref(false)
+const resetLoading = ref(false)
 
 async function start() {
-  loading.value = true
+  startLoading.value = true
   try {
     await startWhatsApp()
   } finally {
-    loading.value = false
+    startLoading.value = false
+  }
+}
+
+async function reset() {
+  resetLoading.value = true
+  try {
+    await resetWhatsApp()
+  } finally {
+    resetLoading.value = false
   }
 }
 
@@ -53,9 +63,14 @@ watch(
         <div class="space-y-2">
           <h3 class="font-medium">WhatsApp</h3>
           <div class="text-sm">Status: <b>{{ waState?.connection || 'unknown' }}</b></div>
-          <button class="px-3 py-1.5 rounded-lg border" @click="start" :disabled="loading">
-            Start
-          </button>
+          <div class="flex gap-2">
+            <button class="px-3 py-1.5 rounded-lg border" @click="start" :disabled="startLoading">
+              Start
+            </button>
+            <button class="px-3 py-1.5 rounded-lg border" @click="reset" :disabled="resetLoading">
+              Reset
+            </button>
+          </div>
           <div v-if="waState?.qr" class="pt-2">
             <canvas ref="qrCanvas" class="mx-auto" />
           </div>
