@@ -36,7 +36,6 @@ export class WhatsAppService {
     sock.ev.on('connection.update', (u) => {
       const { connection, lastDisconnect, qr } = u
 
-
       if (qr) {
         WhatsAppService.lastQR = qr
         try { 
@@ -50,8 +49,8 @@ export class WhatsAppService {
         WhatsAppService.lastQR = null
       }
 
-      io.emit('wa:connection', { connection, qr: qr || null })
 
+      io.emit('wa:connection', { connection, qr: qr || null })
 
       if (connection === 'close') {
         console.log('[wa] Connection closed:', lastDisconnect?.error)
@@ -65,7 +64,6 @@ export class WhatsAppService {
         console.log('[wa] Connected successfully')
       }
     })
-
 
     sock.ev.on('messages.upsert', async (m) => {
       try {
