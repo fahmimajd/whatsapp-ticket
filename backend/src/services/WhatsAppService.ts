@@ -17,23 +17,24 @@ export class WhatsAppService {
   private static lastQR: string | null = null
 
   static async start () {
+    if (WhatsAppService.sock) return WhatsAppService.sock
     const sessionDir = process.env.WA_SESSION_DIR || './wa-sessions'
-      
-      // Ensure directory exists
-      await fs.mkdir(sessionDir, { recursive: true })
-      
-      const { state, saveCreds } = await useMultiFileAuthState(path.join(sessionDir, 'primary'))
 
-      const sock = makeWASocket({
-        printQRInTerminal: true,
-        logger: pino({ level: 'info' }) as any,
-        auth: state
-      })
+    // Ensure directory exists
+    await fs.mkdir(sessionDir, { recursive: true })
 
-      sock.ev.on('creds.update', saveCreds)
+    const { state, saveCreds } = await useMultiFileAuthState(path.join(sessionDir, 'primary'))
 
-      sock.ev.on('connection.update', (u) => {
-        const { connection, lastDisconnect, qr } = u
+    const sock = makeWASocket({
+      printQRInTerminal: true,
+      logger: pino({ level: 'info' }) as any,
+      auth: state
+    })
+
+    sock.ev.on('creds.update', saveCreds)
+
+    sock.ev.on('connection.update', (u) => {
+      const { connection, lastDisconnect, qr } = u
 
         if (qr) {
           WhatsAppService.lastQR = qr
@@ -49,17 +50,18 @@ export class WhatsAppService {
 
         io.emit('wa:connection', { connection, qr: qr || null })
 
-        if (connection === 'close') {
-          console.log('[wa] Connection closed:', lastDisconnect?.error)
-          const shouldReconnect = (lastDisconnect?.error as any)?.output?.statusCode !== DisconnectReason.loggedOut
-          if (shouldReconnect) {
-            console.log('[wa] Reconnecting...')
-            setTimeout(() => WhatsAppService.start().catch((err) => console.error('[wa] Reconnect error:', err)), 2_000)
-          }
-        } else if (connection === 'open') {
-          console.log('[wa] Connected successfully')
+      if (connection === 'close') {
+        console.log('[wa] Connection closed:', lastDisconnect?.error)
+        WhatsAppService.sock = null
+        const shouldReconnect = (lastDisconnect?.error as any)?.output?.statusCode !== DisconnectReason.loggedOut
+        if (shouldReconnect) {
+          console.log('[wa] Reconnecting...')
+          setTimeout(() => WhatsAppService.start().catch((err) => console.error('[wa] Reconnect error:', err)), 2_000)
         }
-      })
+      } else if (connection === 'open') {
+        console.log('[wa] Connected successfully')
+      }
+    })
 
       sock.ev.on('messages.upsert', async (m) => {
         try {
